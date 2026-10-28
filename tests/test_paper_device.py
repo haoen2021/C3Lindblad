@@ -73,22 +73,15 @@ def test_jax_configuration_tracks_selected_device(monkeypatch, tmp_path, module_
     assert os.environ["JAX_ENABLE_X64"].lower() == "true"
 
 
-@pytest.mark.parametrize("available", [None, 16 * 2**30])
-def test_resource_gate_checks_selected_cpu(monkeypatch, available):
+@pytest.mark.parametrize("available,workspace", [(None, 8 * 2**30), (10240, 1024), (20 * 2**30, 2 * 2**30)])
+def test_resource_gate_checks_selected_cpu(monkeypatch, available, workspace):
     from c3l.green import resident_arnoldi
     from examples.shared import multiorbital_response
 
     selected = SimpleNamespace(platform="cpu", memory_stats=lambda: None)
-    calls = []
-
-    def check_memory(device, required_bytes, workspace_bytes=8 * 2**30):
-        calls.append((device, required_bytes, workspace_bytes))
-        return available
-
-    monkeypatch.setattr(resident_arnoldi, "check_resident_memory", check_memory, raising=False)
+    monkeypatch.setattr(resident_arnoldi, "_host_available_memory_bytes", lambda: available)
     record = multiorbital_response._resource_gate(8, device=selected)
-    assert calls == [(selected, 4096, 8 * 2**30)]
-    assert record["required_device_bytes"] == 4096 + 8 * 2**30
+    assert record["required_device_bytes"] == 4096 + workspace
     assert record["available_device_bytes"] == available
 
 
@@ -96,9 +89,6 @@ def test_resource_gate_propagates_insufficient_cpu_memory(monkeypatch):
     from c3l.green import resident_arnoldi
     from examples.shared import multiorbital_response
 
-    def check_memory(device, required_bytes, workspace_bytes=8 * 2**30):
-        raise MemoryError("insufficient CPU RAM")
-
-    monkeypatch.setattr(resident_arnoldi, "check_resident_memory", check_memory, raising=False)
-    with pytest.raises(MemoryError, match="insufficient CPU RAM"):
-        multiorbital_response._resource_gate(8, device=SimpleNamespace(platform="cpu"))
+    monkeypatch.setattr(resident_arnoldi, "_host_available_memory_bytes", lambda: 1024)
+    with pytest.raises(MemoryError, match="No streaming fallback"):
+        multiorbital_response._resource_gate(8, device=SimpleNamespace(platform="cpu", memory_stats=lambda: None))

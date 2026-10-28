@@ -22,7 +22,8 @@ def test_explicit_cpu_production_keeps_dtype_and_device_guards():
 
 
 @pytest.mark.parametrize("platform", ["cpu", "gpu"])
-def test_resident_basis_and_reconstruction_use_requested_device(platform):
+def test_resident_basis_and_reconstruction_use_requested_device(platform, monkeypatch):
+    from c3l.green import resident_arnoldi
     from c3l.green.resident_arnoldi import ResidentArnoldi
     from examples.shared.response import reduced_gmres
 
@@ -30,6 +31,8 @@ def test_resident_basis_and_reconstruction_use_requested_device(platform):
         device = jax.devices(platform)[0]
     except RuntimeError:
         pytest.skip(f"No {platform} device")
+    if platform == "cpu":
+        monkeypatch.setattr(resident_arnoldi, "_host_available_memory_bytes", lambda: 256 * 2**20)
     matrix = np.diag(np.arange(1., 7.) - .4j) + .1j * np.triu(np.ones((6, 6)), 1)
     rhs = np.arange(1., 7.).astype(complex)
     sinks = np.array([rhs.conj(), np.ones(6)])
@@ -56,6 +59,44 @@ def test_cpu_memory_guard_rejects_before_allocating(monkeypatch):
     with pytest.raises(MemoryError, match="No streaming fallback"):
         resident_arnoldi.check_resident_memory(device, 1025, workspace_bytes=0)
     assert resident_arnoldi.check_resident_memory(device, 512, workspace_bytes=512) == 1024
+
+
+@pytest.mark.parametrize("available,basis_limit", [
+    (10 * 2**20, 9 * 2**20),
+    (10 * 2**30, 9 * 2**30),
+    (128 * 2**30, 120 * 2**30),
+])
+def test_cpu_memory_guard_scales_default_headroom(monkeypatch, available, basis_limit):
+    from c3l.green import resident_arnoldi
+
+    monkeypatch.setattr(resident_arnoldi, "_host_available_memory_bytes", lambda: available)
+    device = SimpleNamespace(platform="cpu", memory_stats=lambda: None)
+    assert resident_arnoldi.check_resident_memory(device, basis_limit) == available
+    with pytest.raises(MemoryError, match="No streaming fallback"):
+        resident_arnoldi.check_resident_memory(device, basis_limit + 1)
+
+
+def test_cpu_memory_guard_preserves_explicit_workspace(monkeypatch):
+    from c3l.green import resident_arnoldi
+
+    available = 7 * 2**30
+    monkeypatch.setattr(resident_arnoldi, "_host_available_memory_bytes", lambda: available)
+    device = SimpleNamespace(platform="cpu", memory_stats=lambda: None)
+    assert resident_arnoldi.check_resident_memory(device, available, workspace_bytes=0) == available
+    with pytest.raises(MemoryError, match="No streaming fallback"):
+        resident_arnoldi.check_resident_memory(device, 4096, workspace_bytes=8 * 2**30)
+
+
+def test_gpu_memory_guard_keeps_default_workspace():
+    from c3l.green.resident_arnoldi import check_resident_memory
+
+    device = SimpleNamespace(
+        platform="gpu",
+        memory_stats=lambda: {"bytes_limit": 20 * 2**30, "bytes_in_use": 2 * 2**30},
+    )
+    assert check_resident_memory(device, 10 * 2**30) == 18 * 2**30
+    with pytest.raises(MemoryError, match="No streaming fallback"):
+        check_resident_memory(device, 10 * 2**30 + 1)
 
 
 def test_cpu_memory_guard_respects_job_and_cgroup_limits(monkeypatch):

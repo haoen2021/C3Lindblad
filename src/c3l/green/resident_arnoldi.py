@@ -55,7 +55,15 @@ def _host_available_memory_bytes():
     return min(budgets) if budgets else None
 
 
-def check_resident_memory(device, required_bytes, workspace_bytes=8 * 2**30):
+def resident_workspace_bytes(device, available_bytes):
+    """Reserve 10% of available CPU RAM, capped at 8 GiB; keep 8 GiB on GPUs."""
+    reserve = 8 * 2**30
+    if getattr(device, "platform", None) == "cpu" and available_bytes is not None:
+        reserve = min(reserve, available_bytes // 10)
+    return reserve
+
+
+def check_resident_memory(device, required_bytes, workspace_bytes=None):
     """Reject an oversized resident basis without changing storage or device."""
     memory = device.memory_stats()
     available = None
@@ -63,6 +71,8 @@ def check_resident_memory(device, required_bytes, workspace_bytes=8 * 2**30):
         available = memory["bytes_limit"] - memory["bytes_in_use"]
     elif getattr(device, "platform", None) == "cpu":
         available = _host_available_memory_bytes()
+    if workspace_bytes is None:
+        workspace_bytes = resident_workspace_bytes(device, available)
     if available is not None and required_bytes + workspace_bytes > available:
         raise MemoryError("Resident basis plus workspace exceeds available memory; reduce the Krylov cap or use a device with more memory. No streaming fallback.")
     return available
@@ -105,7 +115,7 @@ def resident_kernels(dimension, rows, panel):
 
 
 class ResidentArnoldi:
-    def __init__(self, action, rhs, sinks, cap, panel=32, *, device=None, workspace_bytes=8 * 2**30):
+    def __init__(self, action, rhs, sinks, cap, panel=32, *, device=None, workspace_bytes=None):
         if not jax.config.jax_enable_x64:
             raise ValueError("Resident Arnoldi requires JAX double precision")
         rhs = np.asarray(rhs, dtype=np.complex128)

@@ -168,7 +168,7 @@ def configure_jax(scratch: Path, *, device: str = "gpu") -> Path:
 
 
 def _resource_gate(operator_dimension: int, *, device: Any = None) -> dict[str, int | None]:
-    from c3l.green.resident_arnoldi import check_resident_memory
+    from c3l.green.resident_arnoldi import check_resident_memory, resident_workspace_bytes
 
     if device is None:
         import jax
@@ -177,7 +177,8 @@ def _resource_gate(operator_dimension: int, *, device: Any = None) -> dict[str, 
     cap = min(PREFIXES[-1], operator_dimension)
     required = ((cap + 32) // 32) * 32 * operator_dimension * 16
     available = check_resident_memory(device, required)
-    return {"required_device_bytes": required + 8 * 2**30, "available_device_bytes": available}
+    workspace = resident_workspace_bytes(device, available)
+    return {"required_device_bytes": required + workspace, "available_device_bytes": available}
 
 
 def _verify_source_compact(
