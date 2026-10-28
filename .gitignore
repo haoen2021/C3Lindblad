@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# Local environments and credentials
+.venv/
+venv/
+.env
+.env.*
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Numerical output belongs in an external working directory.
+*.npy
+*.npz
+*.jls
+*.prof
+
+# Disk-backed Krylov output
+checkpoint/
+scratch/
+run/
+
+# Julia/MPS and Krylov production scratch
+ground_state.jls
+response_*_states.jls
+basis_*.dat

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="550" viewBox="170 175 1200 550" role="img" aria-labelledby="title desc">
+  <title id="title">C3L — coupled-cluster coupled Lindblad</title>
+  <desc id="desc">Three C letters on a teal, cream, and gold cube, beside a calligraphic L that flows into a two-peak spectrum. Reconstructed as editable vector paths from the supplied logo; the spectrum is illustrative, not numerical data. Transparent background.</desc>
+  <defs>
+    <linearGradient id="top-face" x1="250" y1="240" x2="570" y2="410" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#d6d2ae"/><stop offset="1" stop-color="#c9c6a3"/>
+    </linearGradient>
+    <linearGradient id="left-face" x1="206" y1="340" x2="424" y2="668" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#608e81"/><stop offset="0.55" stop-color="#67998a"/><stop offset="1" stop-color="#5c8a7b"/>
+    </linearGradient>
+    <linearGradient id="right-face" x1="430" y1="440" x2="631" y2="575" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#dbc483"/><stop offset="1" stop-color="#ccb273"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="320" y1="230" x2="750" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#123f4b"/><stop offset="0.55" stop-color="#19495a"/><stop offset="1" stop-color="#164753"/>
+    </linearGradient>
+    <linearGradient id="spectrum-ink" x1="700" y1="0" x2="1225" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#19495a"/><stop offset="0.24" stop-color="#087e8c"/>
+      <stop offset="0.40" stop-color="#65a99b"/><stop offset="0.52" stop-color="#c3a45e"/>
+      <stop offset="0.56" stop-color="#d48a29"/><stop offset="0.69" stop-color="#b29b61"/>
+      <stop offset="0.83" stop-color="#bd6b37"/><stop offset="1" stop-color="#b95735"/>
+    </linearGradient>
+    <!-- Compound outline: the two subpaths are the open counters of the L. -->
+    <path id="L-spectrum-outline" fill-rule="evenodd" d="
+      M 741,277
+      C 712,273 673,288 648,315
+      C 624,341 615,372 625,402
+      C 636,437 671,454 725,454
+      C 697,503 669,554 642,589
+      C 606,578 568,582 535,594
+      C 500,607 477,630 475,654
+      C 471,678 485,695 510,698
+      C 558,705 615,673 662,627
+      C 714,653 757,675 808,675
+      C 854,676 887,665 914,634
+      C 939,606 954,551 970,512
+      C 985,553 997,609 1020,637
+      C 1034,654 1048,659 1065,651
+      C 1093,641 1113,599 1134,584
+      C 1147,593 1154,620 1175,639
+      C 1211,672 1268,673 1355,668
+      C 1277,670 1229,662 1200,642
+      C 1176,625 1167,594 1152,567
+      C 1143,551 1134,548 1122,559
+      C 1108,572 1094,604 1077,625
+      C 1063,643 1049,639 1038,624
+      C 1018,596 1006,535 991,486
+      C 985,466 977,455 967,462
+      C 953,469 945,495 935,524
+      C 922,560 910,605 884,630
+      C 863,651 839,656 814,653
+      C 774,651 729,627 684,604
+      C 725,557 756,500 789,448
+      C 859,435 922,398 966,352
+      C 998,318 1016,282 1006,253
+      C 997,222 966,213 935,220
+      C 883,231 839,270 803,315
+      C 775,351 753,402 732,442
+      C 700,442 678,426 668,404
+      C 650,365 678,308 720,285
+      C 727,282 734,280 741,279 Z
+      M 797,434
+      C 823,389 849,338 878,294
+      C 903,255 925,231 946,230
+      C 967,229 979,246 972,270
+      C 964,308 931,351 899,380
+      C 868,407 834,425 797,434 Z
+      M 627,609
+      C 604,600 577,599 552,606
+      C 524,614 504,630 498,650
+      C 493,666 498,679 512,683
+      C 540,693 584,658 627,609 Z"/>
+    <!-- Remove the cube behind the L and its fine separation rim. -->
+    <mask id="cube-separation" maskUnits="userSpaceOnUse" x="180" y="185" width="470" height="530" style="mask-type:luminance">
+      <rect x="180" y="185" width="470" height="530" fill="white"/>
+      <use href="#L-spectrum-outline" fill="black" stroke="black" stroke-width="16" stroke-linejoin="round"/>
+      <path fill="black" stroke="black" stroke-width="16" d="M 627,609 C 604,600 577,599 552,606 C 524,614 504,630 498,650 C 493,666 498,679 512,683 C 540,693 584,658 627,609 Z"/>
+    </mask>
+  </defs>
+  <g id="cube" aria-label="Cube with three C letters" mask="url(#cube-separation)">
+    <g id="cube-faces">
+      <path id="face-left" fill="url(#left-face)" d="M 199,320 416,430 416,691 199,573 Z"/>
+      <path id="face-right" fill="url(#right-face)" d="M 416,430 626,315 634,572 416,691 Z"/>
+      <path id="face-top" fill="url(#top-face)" d="M 199,320 422,202 626,315 416,430 Z"/>
+    </g>
+    <path id="cube-edges" fill="none" stroke="#143f4a" stroke-width="16" stroke-linejoin="miter" d="M 199,320 422,202 626,315 634,572 416,691 199,573 Z M 199,320 416,430 626,315 M 416,430 V 691"/>
+    <g id="three-Cs" fill="url(#ink)" aria-label="C cubed">
+      <path id="C-top" d="M 477,258 480,295 472,295
+        C 465,276 449,267 428,267
+        C 403,267 386,281 386,307
+        C 385,336 405,354 430,356
+        C 452,358 469,350 482,335
+        L 490,340 C 475,359 451,368 425,368
+        C 378,367 345,346 344,314
+        C 342,284 373,258 412,257
+        C 435,256 450,260 459,262
+        C 466,264 469,262 470,258 Z"/>
+      <path id="C-left" d="M 355,444 356,498 349,495
+        C 344,469 330,448 314,441
+        C 295,431 283,442 279,464
+        C 272,492 280,533 297,556
+        C 313,578 336,576 350,557
+        L 359,566 C 344,589 325,590 304,580
+        C 267,562 241,516 242,478
+        C 242,443 259,419 282,419
+        C 302,417 322,432 336,443
+        C 342,448 345,446 348,441 Z"/>
+      <path id="C-right" d="M 585,409 586,460 579,463
+        C 573,436 559,429 542,433
+        C 516,441 500,475 501,514
+        C 501,544 514,560 535,557
+        C 556,554 573,536 583,517
+        L 591,522 C 578,551 556,572 531,576
+        C 493,582 468,561 467,525
+        C 466,486 490,447 522,428
+        C 541,417 555,417 565,421
+        C 573,424 576,420 578,412 Z"/>
+    </g>
+  </g>
+  <g id="lindblad-and-spectrum" aria-label="Calligraphic L flowing into a spectrum">
+    <use href="#L-spectrum-outline" fill="#19495a"/>
+    <path id="spectral-flourish" fill="url(#spectrum-ink)" d="M 662,627
+      C 714,653 757,675 808,675
+      C 854,676 887,665 914,634
+      C 939,606 954,551 970,512
+      C 985,553 997,609 1020,637
+      C 1034,654 1048,659 1065,651
+      C 1093,641 1113,599 1134,584
+      C 1147,593 1154,620 1175,639
+      C 1211,672 1268,673 1355,668
+      C 1277,670 1229,662 1200,642
+      C 1176,625 1167,594 1152,567
+      C 1143,551 1134,548 1122,559
+      C 1108,572 1094,604 1077,625
+      C 1063,643 1049,639 1038,624
+      C 1018,596 1006,535 991,486
+      C 985,466 977,455 967,462
+      C 953,469 945,495 935,524
+      C 922,560 910,605 884,630
+      C 863,651 839,656 814,653
+      C 774,651 729,627 684,604
+      L 662,627 Z"/>
+  </g>
+</svg>

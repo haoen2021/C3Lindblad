@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "C3L"
+version = "0.1.0"
+description = "Coupled-cluster solvers for Lindblad steady states and Green functions"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+classifiers = [
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+  "numba>=0.61",
+  "numpy>=2.0",
+  "scipy>=1.13",
+  "jax>=0.9.2",
+  "jax[cuda13]>=0.9.2; sys_platform == 'linux' and (platform_machine == 'x86_64' or platform_machine == 'aarch64')",
+  "RealTimeBath==0.1.0",
+]
+
+[project.optional-dependencies]
+benchmark = ["threadpoolctl>=3.0"]
+test = ["pytest>=8.0"]
+# Compatibility aliases: these features are included in the standard installation.
+jax = []
+gpu-jax = []
+fitting = []
+
+[project.urls]
+Homepage = "https://github.com/haoen2021/C3Lindblad"
+Documentation = "https://github.com/haoen2021/C3Lindblad/blob/main/examples/README.md"
+Repository = "https://github.com/haoen2021/C3Lindblad"
+Issues = "https://github.com/haoen2021/C3Lindblad/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["c3l", "c3l.*"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+pythonpath = ["src", "."]

@@ -1,0 +1,411 @@
+{
+  "siam_ed": {
+    "model": "particle-hole-symmetric single-impurity AIM",
+    "N_pm_per_correlation": 2,
+    "beta": 100.0,
+    "Gamma": 1.0,
+    "W": 10.0,
+    "mu": 0.0,
+    "U": [2.0, 4.0, 6.0, 8.0, 10.0],
+    "epsilon": "-U/2",
+    "frequency": {
+      "minimum": -20.0,
+      "maximum": 20.0,
+      "points": 257,
+      "eta": 0.1
+    },
+    "time": {
+      "minimum": 0.0,
+      "maximum": 3.0,
+      "points": 121
+    },
+    "fit": {
+      "interval": [0.0, 10.0],
+      "training_points": 401,
+      "validation_points": 801,
+      "quadrature_order": 2048,
+      "seed": 250610308
+    }
+  },
+  "siam_tdvp": {
+    "model": "particle-hole-symmetric single-impurity AIM",
+    "N_pm_per_correlation": 6,
+    "beta": "infinity",
+    "Gamma": 1.0,
+    "W": 10.0,
+    "mu": 0.0,
+    "U": [2.0, 2.5, 3.0],
+    "epsilon": "-U/2",
+    "time": {
+      "minimum": 0.0,
+      "maximum": 3.0,
+      "dt": 0.05
+    },
+    "unitary": {
+      "M_total_bath_spin_orbitals": 48,
+      "chi": 192
+    },
+    "fit": {
+      "interval": [0.0, 10.0],
+      "training_points": 401,
+      "validation_points": 801,
+      "quadrature_order": 2048,
+      "seed": 250610308
+    }
+  },
+  "dimer": {
+    "model": "particle-hole-symmetric two-site Hubbard dimer",
+    "N_pm_per_correlation_per_impurity": 4,
+    "beta": "infinity",
+    "Gamma": 1.0,
+    "W": 10.0,
+    "mu": 0.0,
+    "U": 2.0,
+    "epsilon": -1.0,
+    "t12": 0.5,
+    "time": {
+      "minimum": 0.0,
+      "maximum": 3.0,
+      "dt": 0.05
+    },
+    "unitary": {
+      "M_total_bath_spin_orbitals": 48,
+      "ground_maxdim": 192,
+      "response_maxdims": [128, 192],
+      "paper_bath_sizes": [48, 72]
+    },
+    "fit": {
+      "interval": [0.0, 10.0],
+      "training_points": 401,
+      "validation_points": 801,
+      "quadrature_order": 2048,
+      "seed": 250610308
+    }
+  },
+  "kanamori": {
+    "paper": "Fig. 3b; Eq. 2; Supplement S4",
+    "beta": [8.0, 64.0],
+    "U": 2.0,
+    "J": 0.2,
+    "mu": 1.0,
+    "modes_per_branch": 5,
+    "bath_half_bandwidth": 2.0,
+    "bath_orbital_matrix": [
+      [1.0, 1.0],
+      [1.0, 1.0]
+    ],
+    "eta": 0.05,
+    "frequency": [-4.0, 4.0, 801],
+    "t": 1.0,
+    "r": 1.0
+  },
+  "inchmoss": {
+    "paper": "Fig. 3c; Eq. 3; Supplement S4",
+    "beta": 0.1,
+    "epsilon_0": -2.0,
+    "U": 2.0,
+    "V": -2.0,
+    "V_prime": 2.0,
+    "nu": 2.0,
+    "nu_prime": -2.0,
+    "modes_per_branch": 5,
+    "eta": 0.0,
+    "bath": {
+      "omega_c": 25.0,
+      "edge_steepness": 10.0,
+      "matrix_per_lead": [
+        [0.75, 0.25],
+        [0.25, 0.75]
+      ],
+      "identical_leads": 2
+    },
+    "frequency": [-10.0, 10.0, 801],
+    "comparison": {
+      "rotation": [
+        [1, 1],
+        [1, -1]
+      ],
+      "rotation_norm": 2.0,
+      "rotated_one_body": [0.0, -4.0],
+      "rotated_density_interaction": [
+        [0.0, 0.0],
+        [0.0, 8.0]
+      ],
+      "time": [0.0, 5.0, 501]
+    }
+  },
+  "siam_modes": {
+    "paper": "Fig. 2b",
+    "U": 10.0,
+    "W": 10.0,
+    "beta": 1.0,
+    "eta": 0.1,
+    "Gamma": 1.0,
+    "modes": [1, 2, 3, 4, 5, 6],
+    "fit": {
+      "time": [0.0, 10.0, 501],
+      "validation_time": [0.0, 10.0, 1002],
+      "quadrature_order": 1024,
+      "max_nfev": 5000,
+      "optimization_max_nfev": 50000
+    },
+    "frequency": [-15.0, 15.0, 601],
+    "static": {
+      "tolerance": 1e-09,
+      "maximum_newton_iterations": 30,
+      "gmres_restart": 80,
+      "gmres_maximum_restart_cycles": 8,
+      "forcing_strategy": "eisenstat_walker",
+      "initial_gmres_relative_tolerance": 0.1,
+      "maximum_gmres_relative_tolerance": 0.3,
+      "minimum_gmres_relative_tolerance": 1e-06,
+      "maximum_line_search_steps": 4
+    },
+    "response": {
+      "maximum_krylov_dimension": 640,
+      "residual_tolerance": 1e-09
+    }
+  },
+  "junction": {
+    "paper": "Fig. 4; Supplement S4, Eqs. S82-S87",
+    "basis_note": "Stored orbital order is (h1,h2,l1,l2). Swap indices 0 and 1 in all orbital quantities to obtain the manuscript order (h2,h1,l1,l2).",
+    "model": {
+      "orbital_order": ["h1", "h2", "l1", "l2"],
+      "one_body_matrix": [
+        [-2.55, 0.05, 0.0, 0.0],
+        [0.05, -2.95, 0.0, 0.0],
+        [0.0, 0.0, -0.71, 0.04],
+        [0.0, 0.0, 0.04, -0.48]
+      ],
+      "canonical_two_body_terms": [
+        [0, 1, 0, 1, 0.8],
+        [0, 1, 4, 5, 0.25],
+        [0, 1, 6, 7, 0.04],
+        [0, 2, 0, 2, 0.3],
+        [0, 3, 0, 3, 0.3],
+        [0, 4, 0, 4, 0.04999999999999999],
+        [0, 5, 0, 5, 0.3],
+        [0, 5, 1, 4, -0.25],
+        [0, 6, 0, 6, 0.26],
+        [0, 7, 0, 7, 0.3],
+        [0, 7, 1, 6, -0.04],
+        [1, 2, 1, 2, 0.3],
+        [1, 3, 1, 3, 0.3],
+        [1, 4, 0, 5, -0.25],
+        [1, 4, 1, 4, 0.3],
+        [1, 5, 1, 5, 0.04999999999999999],
+        [1, 6, 0, 7, -0.04],
+        [1, 6, 1, 6, 0.3],
+        [1, 7, 1, 7, 0.26],
+        [2, 3, 2, 3, 0.8],
+        [2, 3, 4, 5, 0.04],
+        [2, 3, 6, 7, 0.18],
+        [2, 4, 2, 4, 0.26],
+        [2, 5, 2, 5, 0.3],
+        [2, 5, 3, 4, -0.04],
+        [2, 6, 2, 6, 0.12],
+        [2, 7, 2, 7, 0.3],
+        [2, 7, 3, 6, -0.18],
+        [3, 4, 2, 5, -0.04],
+        [3, 4, 3, 4, 0.3],
+        [3, 5, 3, 5, 0.26],
+        [3, 6, 2, 7, -0.18],
+        [3, 6, 3, 6, 0.3],
+        [3, 7, 3, 7, 0.12],
+        [4, 5, 0, 1, 0.25],
+        [4, 5, 2, 3, 0.04],
+        [4, 5, 4, 5, 0.8],
+        [4, 6, 4, 6, 0.3],
+        [4, 7, 4, 7, 0.3],
+        [5, 6, 5, 6, 0.3],
+        [5, 7, 5, 7, 0.3],
+        [6, 7, 0, 1, 0.04],
+        [6, 7, 2, 3, 0.18],
+        [6, 7, 6, 7, 0.8]
+      ],
+      "fixed_MO_basis": {
+        "columns": [
+          [-0.12218326369570426, -0.9925075566829031, 0.0, 0.0],
+          [0.9925075566829031, -0.12218326369570426, 0.0, 0.0],
+          [0.0, -0.0, -0.9915228034698058, 0.12993279108591818],
+          [0.0, -0.0, 0.12993279108591818, 0.9915228034698058]
+        ],
+        "energies": [-1.5561552812808834, -1.1438447187191165, 0.19475825303739983, 0.5052417469626003],
+        "labels": ["HOMO-1", "HOMO", "LUMO", "LUMO+1"],
+        "definition": "Fixed neutral closed-shell reference Fock eigenvectors; bare H1 remains the supplied matrix."
+      },
+      "leads": {
+        "u_substrate": [0.5, 0.5, 0.5, 0.5],
+        "tip_geometries": {
+          "center": [0.9202627172903878, 0.3681050869161551, 0.11043152607484653, 0.07362101738323103]
+        },
+        "half_bandwidth": 4.0
+      },
+      "convention": "Each canonical tuple is c a_p^dag a_q^dag a_s a_r, with no additional prefactor."
+    },
+    "beta": 10.0,
+    "modes_per_branch": 4,
+    "bath_files": {
+      "4": {
+        "path": "inputs/bath_N4.npz",
+        "sha256": "4f49b8e2dff15b17a836cf9fa0031f47f456fa240ef820990cb5f9b824a76f7f"
+      }
+    },
+    "biases": [0.0, -0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9, -1.0, -1.1, -1.2, -1.3, -1.4, -1.5, -1.6],
+    "response_biases": [0.0, -0.2, -0.4, -0.6, -0.8, -1.0, -1.2, -1.4, -1.6],
+    "substrate_coupling_squared": 0.8,
+    "tip_coupling_squared": 0.08,
+    "static": {
+      "tolerance": 1e-10,
+      "acceptance": 1e-08,
+      "gmres_attempts": [
+        [960, 0.5],
+        [960, 0.03],
+        [1280, 0.03]
+      ],
+      "interaction_steps": [0.5, 0.75, 1.0]
+    },
+    "response": {
+      "tolerance": 1e-08,
+      "change_tolerance": 0.0002,
+      "krylov_caps": {
+        "S13": 1024,
+        "S135": 1536
+      },
+      "positive_matsubara": 256,
+      "tau_points": 501,
+      "real_frequency_segments": [
+        [-32, -8, 0.1],
+        [-8, 8.0001, 0.01],
+        [8.1, 32.0001, 0.1]
+      ]
+    },
+    "mbpt": {
+      "n": 16384,
+      "window": 16.0,
+      "maxiter": 2000,
+      "mixing": 0.1
+    },
+    "published_model_sha256": "03bbd74945e81f8a06109e5004fc74474896e487eccbe3b250d4993aeead9d35",
+    "archived_input_sha256": "4dd5ff9d3f151970b0f13ff5649eaa832d3f4196bbea4c72981ded5f23727d78"
+  },
+  "exchange_model": {
+    "epsilon": 6.0,
+    "U": 4.0,
+    "J": 0.5,
+    "frequency": [5.0, 10.5, 2201],
+    "eta": 0.1
+  },
+  "response": {
+    "anderson": {
+      "prefixes": [128, 256, 384, 512, 640, 960],
+      "observable_tolerance": 0.0002,
+      "static_tolerance": 1e-08
+    },
+    "multiorbital": {
+      "prefixes": [128, 256, 384, 512, 640, 960, 1280, 1600, 1920],
+      "observable_tolerance": 0.0002,
+      "static_tolerance": 1e-08
+    }
+  },
+  "tdvp": {
+    "single_impurity": {
+      "run": {
+        "task": "ground",
+        "output": "tdvp/results/single_impurity_M48_U2_ground",
+        "threaded_blocksparse": false
+      },
+      "model": {
+        "bath_sites_per_spin": 24,
+        "W": 10.0,
+        "Gamma": 1.0,
+        "U": 2.0
+      },
+      "dmrg": {
+        "sweeps": 12,
+        "initial_link_dimension": 8,
+        "maxdim_schedule": [128, 160, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192],
+        "noise_schedule": [1e-06, 1e-07, 1e-08, 0.0],
+        "cutoff": 1e-10
+      },
+      "tdvp": {
+        "ground_checkpoint": "tdvp/results/single_impurity_M48_U2_ground/ground_state.jls",
+        "dt": 0.05,
+        "tmax": 3.0,
+        "cutoff": 1e-09,
+        "maxdim": 192,
+        "nsite": 2,
+        "checkpoint_interval_steps": 1,
+        "basis_expansion_krylov_dimension": 0,
+        "basis_expansion_cutoff": 1e-10,
+        "updater_krylov_dimension": 8,
+        "updater_tolerance": 1e-12,
+        "branch_mode": "addition_pair_particle_hole"
+      }
+    },
+    "hubbard_dimer": {
+      "run": {
+        "task": "ground",
+        "output": "tdvp/results/hubbard_dimer_M48_U2_ground"
+      },
+      "model": {
+        "bath_spin_orbitals_total": 48,
+        "W": 10.0,
+        "Gamma": 1.0,
+        "td": 0.5,
+        "U": 2.0
+      },
+      "bath": {
+        "bath_spin_orbitals_total": [48, 72],
+        "dt": 0.0025,
+        "tmax": 3.0,
+        "reference_bath_spinful_sites_per_impurity": 512
+      },
+      "time": {
+        "dt": 0.05,
+        "tmax": 3.0
+      },
+      "calibration": {
+        "bath_spin_orbitals_total": 8,
+        "seed": 314159,
+        "initial_link_dimension": 4,
+        "dmrg_sweeps": 6,
+        "maxdim": 32,
+        "cutoff": 1e-12,
+        "dt": 0.025,
+        "tmax": 0.05,
+        "updater_krylov_dimension": 8,
+        "updater_tolerance": 1e-13,
+        "wall_cap_seconds": 300.0,
+        "rss_cap_gib": 4.0
+      },
+      "dmrg": {
+        "seed": 271828,
+        "initial_link_dimension": 8,
+        "sweeps": 12,
+        "maxdim": 192,
+        "maxdim_schedule": [144, 160, 176, 192, 192, 192, 192, 192, 192, 192, 192, 192],
+        "noise_schedule": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        "cutoff": 1e-10,
+        "energy_tolerance": 1e-09,
+        "output_level": 1,
+        "wall_cap_seconds": 1800.0,
+        "rss_cap_gib": 12.0
+      },
+      "tdvp": {
+        "ground_checkpoint": "tdvp/results/hubbard_dimer_M48_U2_ground/ground_state.jls",
+        "branch_mode": "all_eight",
+        "identity_gate": "",
+        "identity_tolerance": 0.0005,
+        "dt": 0.05,
+        "tmax": 3.0,
+        "cutoff": 1e-09,
+        "maxdim": 192,
+        "updater_krylov_dimension": 8,
+        "updater_tolerance": 1e-12,
+        "wall_cap_seconds": 3600.0,
+        "rss_cap_gib": 16.0
+      }
+    }
+  }
+}
