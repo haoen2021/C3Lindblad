@@ -1,5 +1,7 @@
 # C³L (Coupled-Cluster Coupled Lindblad)
 
+[![CI](https://github.com/haoen2021/C3Lindblad/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/haoen2021/C3Lindblad/actions/workflows/ci.yml)
+
 <p align="center">
   <img src="C3L/c3l.svg" alt="C³L — Coupled-Cluster Coupled Lindblad" width="480">
 </p>
