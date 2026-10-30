@@ -95,7 +95,7 @@ If you use C³L in your research, please cite our preprint:
 Hao-En Li, Zhen Huang, and Lin Lin, [Efficient simulations of spectra and transport for multiorbital quantum impurities](preprint/Efficient_Multiorbital_Impurities.pdf), 2026.
 
 ```bibtex
-@misc{li2026c3l,
+@misc{LiHuangLin2026,
   title = {Efficient simulations of spectra and transport for multiorbital quantum impurities},
   author = {Li, Hao-En and Huang, Zhen and Lin, Lin},
   year = {2026},
