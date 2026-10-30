@@ -90,9 +90,19 @@ See the [examples guide](examples/README.md) for more examples. These optional s
 
 ## Citing C³L
 
-The following paper should be cited when utilizing the C³L program package:
+If you use C³L in your research, please cite our preprint:
 
-Hao-En Li, Zhen Huang, and Lin Lin, [Efficient simulations of spectra and transport for multiorbital quantum impurities](), **arXiv:2610.XXXXX**
+Hao-En Li, Zhen Huang, and Lin Lin, [Efficient simulations of spectra and transport for multiorbital quantum impurities](preprint/Efficient_Multiorbital_Impurities.pdf), 2026.
+
+```bibtex
+@misc{li2026c3l,
+  title = {Efficient simulations of spectra and transport for multiorbital quantum impurities},
+  author = {Li, Hao-En and Huang, Zhen and Lin, Lin},
+  year = {2026},
+  note = {Preprint},
+  url = {https://github.com/haoen2021/C3Lindblad/blob/main/preprint/Efficient_Multiorbital_Impurities.pdf}
+}
+```
 
 If your calculation employed the bath fitting based on [RealTimeBath](https://github.com/Hertz4/RealTimeBath), cite
 
