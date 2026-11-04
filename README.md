@@ -106,7 +106,6 @@ Hao-En Li, Zhen Huang, and Lin Lin, [Efficient simulations of spectra and transp
       primaryClass={physics.chem-ph},
       url={https://arxiv.org/abs/2611.05185}, 
 }
-}
 ```
 
 If your calculation employed the bath fitting based on [RealTimeBath](https://github.com/Hertz4/RealTimeBath), cite
