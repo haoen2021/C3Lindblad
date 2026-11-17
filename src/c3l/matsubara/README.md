@@ -149,6 +149,16 @@ for iteration in range(n_iterations):
 - **Equilibrium only.** The Matsubara identification assumes the PM bath represents an equilibrium bath at the same $\beta$; nonequilibrium (biased) baths have no Matsubara function.
 - **`sites` must contain every interacting site;** otherwise $G_0^{-1}-G^{-1}$ is not the impurity self-energy, and the call raises `ValueError`.
 - **Spin mode returns one spin block per call.**
+- **The default full-HF reference can fail at strong coupling.** Given a model, `solve_matsubara` builds the default general full-HF reference. This may not converge, e.g. for the particle-hole-symmetric SIAM at $U=6\Gamma$, where it raises `RuntimeError: the default general full-HF reference did not converge`. For half-filled single-orbital models, use the reference of the SIAM examples instead and pass the compiled problem:
+
+  ```python
+  from c3l.cc.component_tensor import ComponentStaticProblem
+  from c3l.cc.factorized import factorized_cc_problem
+
+  static = ComponentStaticProblem.compile(factorized_cc_problem(
+      model, "CCSD", m_up=0.5, reference_mode="legacy_half_filled"))
+  solution = solve_matsubara(static, grid, rank="S135")
+  ```
 - **The NumPy/JAX Arnoldi used here keeps the Krylov basis in host memory.** For very large S135 spaces, use the GPU-resident path and pass its output through `grid.from_upper` (see above).
 
 ## Layout and tests
