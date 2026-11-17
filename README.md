@@ -86,6 +86,26 @@ np.savez("spectrum.npz", omega=omega, G_R=response.retarded, A=-response.retarde
 
 </details>
 
+### Matsubara Green functions and self-energies
+
+For an equilibrium bath fitted at inverse temperature $\beta$, the impurity Green function on the Matsubara axis is the retarded response at $z=i|\omega_n|$ (with $G(-i\omega_n)=G(i\omega_n)^\dagger$), so all Matsubara points share one Krylov space. `c3l.matsubara` returns $G(i\omega_n)$ and the self-energy $\Sigma=G_{0,\mathrm{PM}}^{-1}-G^{-1}$ on a given grid, or on the DLR grid for given $\beta$, accuracy $\epsilon$ and cutoff $\Lambda=\beta\omega_{\max}$ (requires `pip install "c3l[dlr]"`).
+
+<details>
+<summary>Show the Matsubara example</summary>
+
+```python
+from c3l.matsubara import dlr_matsubara_grid, matsubara_grid, solve_matsubara
+
+grid = dlr_matsubara_grid(beta=10.0, eps=1e-10, wmax=6.0)   # or matsubara_grid(10.0, n_iw=256)
+solution = solve_matsubara(model, grid, rank="S13")        # CCSD + EOM; platform="gpu" for JAX
+G_iw, Sigma_iw = solution.green, solution.self_energy        # axes (n, a, b) over impurity sites
+G_target = solution.dyson(Delta_iw)                          # [iw - h - Delta - Sigma]^{-1}
+```
+
+`grid.dlr` is the `pydlr` basis for imaginary-time transforms. Responses computed elsewhere (e.g. GPU-resident Arnoldi) can be evaluated at `grid.upper_shifts`, mapped with `grid.from_upper`, and passed to `matsubara_self_energy`. See [examples/basic/05_matsubara_dlr.py](examples/basic/05_matsubara_dlr.py) for a fitted SIAM bath.
+
+</details>
+
 ## Examples
 
 See the [examples guide](examples/README.md) for more examples. These optional scripts are provided in the source repository.

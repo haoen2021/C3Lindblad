@@ -372,6 +372,130 @@ def component_retarded_matrix_green_arnoldi(
     space; all sink rows and all frequencies are contracted from that space.
     """
 
+    columns, retained_dimension = _validated_source_columns(operator, sources)
+    frequency = np.asarray(omega, dtype=np.float64)
+    broadening = float(eta)
+    if (
+        frequency.ndim != 1
+        or frequency.size == 0
+        or not np.all(np.isfinite(frequency))
+        or not np.isfinite(broadening)
+        or broadening <= 0.0
+    ):
+        raise ValueError("omega and positive eta must be finite")
+    maximum_dimension, minimum_dimension = _validated_krylov_controls(
+        operator,
+        maximum_krylov_dimension,
+        minimum_krylov_dimension,
+        check_interval,
+        residual_tolerance,
+    )
+    if not hasattr(operator, "action_calls"):
+        raise TypeError("operator must be an instrumented ComponentSigmaOperator")
+    before_action_seconds = operator.action_wall_seconds
+    core = _matrix_arnoldi_response(
+        operator,
+        columns,
+        retained_dimension,
+        frequency.astype(np.complex128) + 1j * broadening,
+        maximum_dimension=maximum_dimension,
+        minimum_dimension=minimum_dimension,
+        residual_tolerance=float(residual_tolerance),
+        check_interval=check_interval,
+    )
+    return ComponentRetardedMatrixArnoldiGreen(
+        omega=frequency,
+        eta=broadening,
+        sites=core.sites,
+        addition=core.addition,
+        removal=core.removal,
+        retarded=core.retarded,
+        addition_projections=core.addition_projections,
+        removal_projections=core.removal_projections,
+        addition_relative_residuals=core.addition_relative_residuals,
+        removal_relative_residuals=core.removal_relative_residuals,
+        component_action_calls=core.action_calls,
+        component_action_wall_seconds=float(
+            operator.action_wall_seconds - before_action_seconds
+        ),
+        wall_seconds=core.wall_seconds,
+        peak_rss_kib=core.peak_rss_kib,
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class ComponentShiftedMatrixArnoldiGreen:
+    """One-sided Arnoldi matrix response at arbitrary upper-half-plane shifts.
+
+    ``retarded[k, a, b]`` is $G^R_{ab}(z_k)$ with sink ``a`` and source ``b``.
+    The operator may be any exact response action exposing ``dimension`` and
+    ``matvec`` (retained S13 or full S135, NumPy or JAX).
+    """
+
+    shifts: NDArray[np.complex128]
+    sites: tuple[int, ...]
+    addition: NDArray[np.complex128]
+    removal: NDArray[np.complex128]
+    retarded: NDArray[np.complex128]
+    addition_projections: tuple[ArnoldiResolvent, ...]
+    removal_projections: tuple[ArnoldiResolvent, ...]
+    addition_relative_residuals: NDArray[np.float64]
+    removal_relative_residuals: NDArray[np.float64]
+    action_calls: int
+    wall_seconds: float
+    peak_rss_kib: int
+
+
+def component_retarded_matrix_green_shifts(
+    operator: object,
+    sources: Sequence[ComponentEOMSources],
+    shifts: ArrayLike,
+    *,
+    maximum_krylov_dimension: int = 320,
+    residual_tolerance: float = 1.0e-10,
+    minimum_krylov_dimension: int = 16,
+    check_interval: int = 8,
+) -> ComponentShiftedMatrixArnoldiGreen:
+    r"""Evaluate $G^R(z)$ for complex shifts with $\operatorname{Im} z>0$.
+
+    This is :func:`component_retarded_matrix_green_arnoldi` without the
+    ``omega + i eta`` restriction, so imaginary-axis points ``z = i omega_n``
+    share one Krylov space per source with any real-axis points.  Sources
+    shorter than ``operator.dimension`` (S13 sources in the S135 space) are
+    zero-padded, as in the real-axis solvers.
+    """
+
+    columns, retained_dimension = _validated_source_columns(operator, sources)
+    z = np.asarray(shifts, dtype=np.complex128)
+    if (
+        z.ndim != 1
+        or z.size == 0
+        or not np.all(np.isfinite(z))
+        or np.any(z.imag <= 0.0)
+    ):
+        raise ValueError("shifts must be finite with positive imaginary parts")
+    maximum_dimension, minimum_dimension = _validated_krylov_controls(
+        operator,
+        maximum_krylov_dimension,
+        minimum_krylov_dimension,
+        check_interval,
+        residual_tolerance,
+    )
+    return _matrix_arnoldi_response(
+        operator,
+        columns,
+        retained_dimension,
+        z,
+        maximum_dimension=maximum_dimension,
+        minimum_dimension=minimum_dimension,
+        residual_tolerance=float(residual_tolerance),
+        check_interval=check_interval,
+    )
+
+
+def _validated_source_columns(
+    operator: object, sources: Sequence[ComponentEOMSources]
+) -> tuple[tuple[ComponentEOMSources, ...], int]:
     columns = tuple(sources)
     if not columns:
         raise ValueError("at least one impurity source is required")
@@ -389,16 +513,16 @@ def component_retarded_matrix_green_arnoldi(
         raise ValueError("impurity sources and sinks must share one retained basis")
     if operator.dimension < retained_dimension:
         raise ValueError("response operator is smaller than the retained sources")
-    frequency = np.asarray(omega, dtype=np.float64)
-    broadening = float(eta)
-    if (
-        frequency.ndim != 1
-        or frequency.size == 0
-        or not np.all(np.isfinite(frequency))
-        or not np.isfinite(broadening)
-        or broadening <= 0.0
-    ):
-        raise ValueError("omega and positive eta must be finite")
+    return columns, retained_dimension
+
+
+def _validated_krylov_controls(
+    operator: object,
+    maximum_krylov_dimension: int,
+    minimum_krylov_dimension: int,
+    check_interval: int,
+    residual_tolerance: float,
+) -> tuple[int, int]:
     if (
         isinstance(maximum_krylov_dimension, bool)
         or not isinstance(maximum_krylov_dimension, int)
@@ -420,18 +544,29 @@ def component_retarded_matrix_green_arnoldi(
     minimum_dimension = min(minimum_krylov_dimension, maximum_dimension)
     if maximum_dimension <= 0 or minimum_dimension <= 0:
         raise ValueError("Krylov dimensions must be positive")
+    return maximum_dimension, minimum_dimension
 
-    shifts = frequency.astype(np.complex128) + 1j * broadening
+
+def _matrix_arnoldi_response(
+    operator: object,
+    columns: tuple[ComponentEOMSources, ...],
+    retained_dimension: int,
+    shifts: NDArray[np.complex128],
+    *,
+    maximum_dimension: int,
+    minimum_dimension: int,
+    residual_tolerance: float,
+    check_interval: int,
+) -> ComponentShiftedMatrixArnoldiGreen:
     padding = operator.dimension - retained_dimension
     zeros = np.zeros(padding, dtype=np.complex128)
     sinks = np.vstack([np.concatenate((item.sink, zeros)) for item in columns])
-    shape = (frequency.size, len(columns), len(columns))
+    shape = (shifts.size, len(columns), len(columns))
     addition = np.empty(shape, dtype=np.complex128)
     removal = np.empty(shape, dtype=np.complex128)
     addition_projections: list[ArnoldiResolvent] = []
     removal_projections: list[ArnoldiResolvent] = []
-    before_calls = operator.action_calls
-    before_action_seconds = operator.action_wall_seconds
+    before_calls = getattr(operator, "action_calls", None)
     started = perf_counter()
 
     def project(source: ComplexVector) -> ArnoldiResolvent:
@@ -440,7 +575,7 @@ def component_retarded_matrix_green_arnoldi(
             np.concatenate((source, zeros)),
             shifts,
             maximum_dimension=maximum_dimension,
-            residual_tolerance=float(residual_tolerance),
+            residual_tolerance=residual_tolerance,
             minimum_dimension=minimum_dimension,
             check_interval=check_interval,
         )
@@ -467,16 +602,15 @@ def component_retarded_matrix_green_arnoldi(
         [projection.relative_residuals(shifts) for projection in removal_projections],
         dtype=np.float64,
     )
-    action_calls = operator.action_calls - before_calls
     expected_calls = sum(
         projection.dimension
         for projection in addition_projections + removal_projections
     )
-    if action_calls != expected_calls:
-        raise RuntimeError("component action count disagrees with Arnoldi dimensions")
-    return ComponentRetardedMatrixArnoldiGreen(
-        omega=frequency,
-        eta=broadening,
+    if before_calls is not None:
+        if operator.action_calls - before_calls != expected_calls:
+            raise RuntimeError("component action count disagrees with Arnoldi dimensions")
+    return ComponentShiftedMatrixArnoldiGreen(
+        shifts=np.asarray(shifts, dtype=np.complex128),
         sites=tuple(item.site for item in columns),
         addition=addition,
         removal=removal,
@@ -485,10 +619,7 @@ def component_retarded_matrix_green_arnoldi(
         removal_projections=tuple(removal_projections),
         addition_relative_residuals=addition_residuals,
         removal_relative_residuals=removal_residuals,
-        component_action_calls=int(action_calls),
-        component_action_wall_seconds=float(
-            operator.action_wall_seconds - before_action_seconds
-        ),
+        action_calls=int(expected_calls),
         wall_seconds=float(perf_counter() - started),
         peak_rss_kib=int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss),
     )
@@ -689,11 +820,13 @@ __all__ = [
     "ComponentRetardedMatrixArnoldiGreen",
     "ComponentRetardedMatrixGreen",
     "ComponentRetardedMatrixTime",
+    "ComponentShiftedMatrixArnoldiGreen",
     "ComponentShiftedSolution",
     "ComponentSigmaOperator",
     "component_retarded_green",
     "component_retarded_matrix_green",
     "component_retarded_matrix_green_arnoldi",
+    "component_retarded_matrix_green_shifts",
     "component_retarded_matrix_time",
     "component_retarded_time",
     "solve_component_shifted",

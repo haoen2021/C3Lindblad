@@ -27,7 +27,9 @@ dependencies = [
 
 [project.optional-dependencies]
 benchmark = ["threadpoolctl>=3.0"]
-test = ["pytest>=8.0"]
+# DLR Matsubara grids (c3l.matsubara.dlr_matsubara_grid) and imaginary-time transforms.
+dlr = ["pydlr>=1.0.1"]
+test = ["pytest>=8.0", "pydlr>=1.0.1"]
 # Compatibility aliases: these features are included in the standard installation.
 jax = []
 gpu-jax = []
