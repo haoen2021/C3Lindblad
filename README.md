@@ -88,7 +88,9 @@ np.savez("spectrum.npz", omega=omega, G_R=response.retarded, A=-response.retarde
 
 ### Matsubara Green functions and self-energies
 
-For an equilibrium bath fitted at inverse temperature $\beta$, the impurity Green function on the Matsubara axis is the retarded response at $z=i|\omega_n|$ (with $G(-i\omega_n)=G(i\omega_n)^\dagger$), so all Matsubara points share one Krylov space. `c3l.matsubara` returns $G(i\omega_n)$ and the self-energy $\Sigma=G_{0,\mathrm{PM}}^{-1}-G^{-1}$ on a given grid, or on the DLR grid for given $\beta$, accuracy $\epsilon$ and cutoff $\Lambda=\beta\omega_{\max}$ (requires `pip install "c3l[dlr]"`).
+For an equilibrium bath fitted at inverse temperature $\beta$, the impurity Green function on the Matsubara axis is the retarded response at $z=i|\omega_n|$ (with $G(-i\omega_n)=G(i\omega_n)^\dagger$), so all Matsubara points share one Krylov space. `c3l.matsubara` returns $G(i\omega_n)$ and the self-energy $\Sigma=G_{0,\mathrm{PM}}^{-1}-G^{-1}$ on a given grid, or on the DLR grid for given $\beta$, accuracy $\epsilon$ and cutoff $\Lambda=\beta\omega_{\max}$ (requires `pip install "c3l[dlr]"`). This is the interface for using C³L as an impurity solver in imaginary-time DMFT.
+
+**See the [Matsubara solver guide](src/c3l/matsubara/README.md)** for grid choices, solver options and outputs, inserting $\Sigma$ into another bath, DLR imaginary-time transforms, using your own (e.g. GPU-resident) response, a DMFT-loop sketch and current limitations.
 
 <details>
 <summary>Show the Matsubara example</summary>
@@ -108,7 +110,7 @@ G_target = solution.dyson(Delta_iw)                          # [iw - h - Delta -
 
 ## Examples
 
-See the [examples guide](examples/README.md) for more examples. These optional scripts are provided in the source repository.
+See the [examples guide](examples/README.md) for more examples. These optional scripts are provided in the source repository. For the Matsubara-axis solver, see [examples/basic/05_matsubara_dlr.py](examples/basic/05_matsubara_dlr.py) and the [Matsubara solver guide](src/c3l/matsubara/README.md).
 
 ## Citing C³L
 
