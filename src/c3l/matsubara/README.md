@@ -62,7 +62,7 @@ This toy model only illustrates the calls. For physically meaningful Matsubara d
 - `indices`, `omega_n`, `iw` and `len(grid)`.
 - `upper_shifts`: the distinct points $i|\omega_n|$ that a retarded solver must evaluate.
 - `from_upper(values)`: maps those values back onto the grid, using the adjoint for negative frequencies.
-- `dlr`: the `pydlr.dlr` basis on a DLR grid (`None` otherwise). Its node order matches the grid, so its transforms apply directly.
+- On a DLR grid: `dlr_tau`, `dlr_matsubara`, `dlr_coefficients` and `dlr_poles` (see below), and `dlr`, the underlying `pydlr.dlr` basis (`None` on explicit grids).
 
 ## Running the solver
 
@@ -104,13 +104,17 @@ down = solve_matsubara(model, grid, response_spin=1, amplitudes=solution.amplitu
 
 ## Imaginary time with the DLR
 
+A DLR grid expands values on its nodes as $G(i\omega_n)=\sum_l g_l/(i\omega_n-\omega_l)$, with real poles $\omega_l$ (`grid.dlr_poles`):
+
 ```python
-x = grid.dlr.dlr_from_matsubara(G_iw, beta)          # DLR coefficients
-G_tau = grid.dlr.eval_dlr_tau(x, tau, beta)          # any tau in [0, beta]
-G_dense = grid.dlr.eval_dlr_freq(x, dense.iw, beta)  # any Matsubara points
+G_tau = grid.dlr_tau(G_iw, tau)              # G(tau) for any tau in [0, beta]
+G_dense = grid.dlr_matsubara(G_iw, dense.iw)  # G at any other Matsubara points
+g = grid.dlr_coefficients(G_iw)              # the coefficients g_l themselves
 ```
 
-- **pydlr bug:** use `eval_dlr_freq` rather than `matsubara_from_dlr`. In pydlr 1.0.1, `matsubara_from_dlr` returns the orbital transpose of matrix-valued data.
+These work for scalar `(n,)` or matrix `(n, m, m)` data and need only NumPy.
+
+- **pydlr's own transforms:** `grid.dlr` is the `pydlr.dlr` basis, but its transforms are best avoided for matrix data. In pydlr 1.0.1, `dlr_from_matsubara` fails on `(n, m, m)` arrays with SciPy ≥ 1.18, `matsubara_from_dlr` returns the orbital transpose, and `eval_dlr_freq` assumes Hermitian coefficients.
 - **Accuracy limit:** the PM Green function has Lorentzian (finite-lifetime) tails, so DLR interpolation of the raw PM $G$ is limited to roughly $10^{-8}$ even at $\epsilon=10^{-10}$. Check it against `solve_matsubara(model, matsubara_grid(beta, n_iw=...), amplitudes=solution.amplitudes)` when it matters.
 
 ## Bringing your own response
@@ -174,4 +178,4 @@ for iteration in range(n_iterations):
 - **U = 0:** $\Sigma=0$, with the analytic PM hybridization.
 - **Symmetry:** spin mode against charge mode.
 - **Backends:** JAX against NumPy.
-- **DLR:** nodes against `pydlr`, and interpolation of a matrix pole model.
+- **DLR:** nodes against `pydlr`, and τ and Matsubara interpolation of a non-Hermitian matrix pole model.

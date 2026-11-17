@@ -104,7 +104,7 @@ G_iw, Sigma_iw = solution.green, solution.self_energy        # axes (n, a, b) ov
 G_target = solution.dyson(Delta_iw)                          # [iw - h - Delta - Sigma]^{-1}
 ```
 
-`grid.dlr` is the `pydlr` basis for imaginary-time transforms. Responses computed elsewhere (e.g. GPU-resident Arnoldi) can be evaluated at `grid.upper_shifts`, mapped with `grid.from_upper`, and passed to `matsubara_self_energy`. See [examples/basic/05_matsubara_dlr.py](examples/basic/05_matsubara_dlr.py) for a fitted SIAM bath.
+On a DLR grid, `grid.dlr_tau(G_iw, tau)` and `grid.dlr_matsubara(G_iw, iw)` give $G(\tau)$ and $G$ at other Matsubara points. Responses computed elsewhere (e.g. GPU-resident Arnoldi) can be evaluated at `grid.upper_shifts`, mapped with `grid.from_upper`, and passed to `matsubara_self_energy`. See [examples/basic/05_matsubara_dlr.py](examples/basic/05_matsubara_dlr.py) for a fitted SIAM bath.
 
 </details>
 

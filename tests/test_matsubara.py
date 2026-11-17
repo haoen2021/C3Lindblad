@@ -242,20 +242,31 @@ def test_dlr_grid_matches_pydlr_and_interpolates_matsubara_data():
     np.testing.assert_allclose(grid.iw, reference.get_matsubara_frequencies(beta), atol=1e-14)
     assert len(dlr_matsubara_grid(beta, eps, lamb=beta * wmax)) == len(grid)
 
-    # A matrix sum of poles inside [-wmax, wmax] is recovered off the grid.
+    # A non-Hermitian matrix sum of poles inside [-wmax, wmax] is recovered off the grid,
+    # on the Matsubara axis and in imaginary time.
     rng = np.random.default_rng(7)
     poles = rng.uniform(-wmax, wmax, 6)
-    vectors = rng.normal(size=(6, 2)) + 1j * rng.normal(size=(6, 2))
-    weights = np.einsum("ka,kb->kab", vectors, vectors.conj())
+    weights = rng.normal(size=(6, 2, 2)) + 1j * rng.normal(size=(6, 2, 2))
 
     def green(z):
         return np.einsum("kab,wk->wab", weights, 1.0 / (z[:, None] - poles[None, :]))
 
-    coefficients = grid.dlr.dlr_from_matsubara(green(grid.iw), beta)
+    def green_tau(tau):
+        kernel = np.where(
+            poles[None, :] >= 0,
+            np.exp(-np.abs(poles) * tau[:, None]),
+            np.exp(-np.abs(poles) * (beta - tau[:, None])),
+        ) / (1.0 + np.exp(-beta * np.abs(poles)))
+        return -np.einsum("kab,tk->tab", weights, kernel)
+
+    values = green(grid.iw)
     dense = matsubara_grid(beta, n_iw=300)
-    np.testing.assert_allclose(
-        grid.dlr.eval_dlr_freq(coefficients, dense.iw, beta), green(dense.iw), atol=1e-9
-    )
+    np.testing.assert_allclose(grid.dlr_matsubara(values, dense.iw), green(dense.iw), atol=1e-9)
+    tau = np.linspace(0.0, beta, 41)
+    np.testing.assert_allclose(grid.dlr_tau(values, tau), green_tau(tau), atol=1e-9)
+    np.testing.assert_allclose(grid.dlr_tau(values[:, 0, 1], tau), green_tau(tau)[:, 0, 1], atol=1e-9)
+    with pytest.raises(ValueError, match="DLR"):
+        matsubara_grid(beta, n_iw=4).dlr_tau(np.zeros(8), tau)
     with pytest.raises(ValueError):
         dlr_matsubara_grid(beta, eps)
     with pytest.raises(ValueError):

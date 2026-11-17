@@ -100,10 +100,10 @@ def main():
     G = solution.dyson(delta)          # physical impurity G with the exact bath
     Sigma = solution.self_energy
 
-    dlr, beta = grid.dlr, args.beta
+    beta = args.beta
     tau = np.linspace(0.0, beta, 201)
-    G_tau = dlr.eval_dlr_tau(dlr.dlr_from_matsubara(G, beta), tau, beta)
-    G_tau_pm = dlr.eval_dlr_tau(dlr.dlr_from_matsubara(solution.green, beta), tau, beta)
+    G_tau = grid.dlr_tau(G, tau)
+    G_tau_pm = grid.dlr_tau(solution.green, tau)
     print(f"n_sigma = -G(beta): reconstructed {-G_tau[-1, 0, 0].real:.6f}, "
           f"PM {-G_tau_pm[-1, 0, 0].real:.6f} (exact 1/2)")
     print(f"particle-hole: max |Re G(iw_n)| = {np.max(np.abs(G.real)):.1e}")
@@ -114,7 +114,7 @@ def main():
     # DLR interpolation check against a direct evaluation on a dense grid.
     dense = matsubara_grid(beta, n_iw=64)
     direct = solve_matsubara(model, dense, amplitudes=solution.amplitudes)
-    interpolated = dlr.eval_dlr_freq(dlr.dlr_from_matsubara(solution.green, beta), dense.iw, beta)
+    interpolated = grid.dlr_matsubara(solution.green, dense.iw)
     print(f"DLR interpolation of the PM G on 128 dense points: max error "
           f"{np.max(np.abs(interpolated - direct.green)):.1e}")
 

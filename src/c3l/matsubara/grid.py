@@ -97,6 +97,74 @@ class MatsubaraGrid:
             out[negative] = out[negative].conj().swapaxes(1, 2)
         return out
 
+    @property
+    def dlr_poles(self) -> NDArray[np.float64]:
+        r"""Real DLR frequencies :math:`\omega_l` (requires a DLR grid).
+
+        Values on the grid are expanded as
+        :math:`G(i\omega_n)=\sum_l g_l/(i\omega_n-\omega_l)`; the number of
+        poles equals the number of Matsubara nodes.
+        """
+
+        if self.kind != "dlr" or self.dlr is None:
+            raise ValueError("DLR transforms need a grid from dlr_matsubara_grid")
+        poles = np.asarray(self.dlr.dlrrf, dtype=np.float64).reshape(-1) / self.beta
+        if poles.size != self.indices.size:
+            raise RuntimeError("DLR rank and Matsubara node count differ")
+        return poles
+
+    def dlr_coefficients(self, values: ArrayLike) -> ComplexGrid:
+        r"""DLR coefficients :math:`g_l` of ``values`` given on this DLR grid.
+
+        ``values`` has shape ``(len(grid), ...)`` (scalar or matrix valued);
+        the result has the same shape, indexed by pole instead of frequency.
+        """
+
+        poles = self.dlr_poles
+        data = np.asarray(values, dtype=np.complex128)
+        if data.ndim < 1 or data.shape[0] != len(self) or not np.all(np.isfinite(data)):
+            raise ValueError("values must be finite with leading dimension len(grid)")
+        kernel = 1.0 / (self.iw[:, None] - poles[None, :])
+        coefficients = np.linalg.solve(kernel, data.reshape(len(self), -1))
+        return coefficients.reshape(data.shape)
+
+    def dlr_tau(self, values: ArrayLike, tau: ArrayLike) -> ComplexGrid:
+        r"""Evaluate :math:`G(\tau)=-\sum_l g_l e^{-\omega_l\tau}/(1+e^{-\beta\omega_l})`.
+
+        ``values`` are on this DLR grid; ``tau`` lies in :math:`[0,\beta]`.
+        Returns shape ``(len(tau), ...)``.
+        """
+
+        coefficients = self.dlr_coefficients(values)
+        times = np.asarray(tau, dtype=np.float64)
+        if (
+            times.ndim != 1
+            or not np.all(np.isfinite(times))
+            or np.any(times < 0.0)
+            or np.any(times > self.beta)
+        ):
+            raise ValueError("tau must be a finite vector in [0, beta]")
+        poles = self.dlr_poles
+        magnitude = np.abs(poles)[None, :]
+        t = times[:, None]
+        decay = np.where(poles[None, :] >= 0.0, np.exp(-magnitude * t), np.exp(-magnitude * (self.beta - t)))
+        kernel = -decay / (1.0 + np.exp(-self.beta * magnitude))
+        return np.tensordot(kernel, coefficients, axes=(1, 0))
+
+    def dlr_matsubara(self, values: ArrayLike, points: ArrayLike) -> ComplexGrid:
+        r"""Evaluate the DLR expansion of ``values`` at Matsubara points :math:`i\omega`.
+
+        ``points`` are complex :math:`i\omega` (e.g. ``other_grid.iw``).
+        Returns shape ``(len(points), ...)``.
+        """
+
+        coefficients = self.dlr_coefficients(values)
+        z = np.asarray(points, dtype=np.complex128)
+        if z.ndim != 1 or not np.all(np.isfinite(z)):
+            raise ValueError("points must be a finite complex vector")
+        kernel = 1.0 / (z[:, None] - self.dlr_poles[None, :])
+        return np.tensordot(kernel, coefficients, axes=(1, 0))
+
 
 def matsubara_grid(
     beta: float,
