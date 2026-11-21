@@ -1,12 +1,16 @@
 # Matsubara Green functions
 
-`c3l.matsubara` computes the impurity Green function $G(i\omega_n)$ and self-energy $\Sigma(i\omega_n)$ on a fermionic Matsubara grid, for use as an impurity solver in imaginary-time DMFT. The pseudomode bath must be fitted to an equilibrium bath at the same inverse temperature $\beta$. Then
+`c3l.matsubara` computes the impurity Green function $`G(\mathrm{i}\omega_n)`$ and self-energy $`\Sigma(\mathrm{i}\omega_n)`$ on a fermionic Matsubara grid, for use as an impurity solver in imaginary-time DMFT. The pseudomode bath must be fitted to an equilibrium bath at the same inverse temperature $`\beta`$. Then
 
 $$
-G(i\omega_n)=G^R(i\omega_n)\quad(\omega_n>0),\qquad G(i\omega_n)=G^R(-i\omega_n)^\dagger\quad(\omega_n<0),
+G(\mathrm{i}\omega_n)=G^R(\mathrm{i}\omega_n)\quad(\omega_n>0),\qquad G(\mathrm{i}\omega_n)=G^R(-\mathrm{i}\omega_n)^\dagger\quad(\omega_n<0),
 $$
 
-so each Matsubara point is one more shift $z=i|\omega_n|$ of the Krylov space used for real-frequency spectra. The self-energy is $\Sigma=G_0^{-1}-G^{-1}$ on the impurity sites $S$, with the pseudomode noninteracting Green function $G_0(z)=[(z-E+i\Lambda)^{-1}]_{SS}$ and $\Lambda=\Gamma_{\rm loss}+\Gamma_{\rm gain}$.
+so each Matsubara point is one more shift $`z=\mathrm{i}\lvert\omega_n\rvert`$ of the Krylov space used for real-frequency spectra. The self-energy is $`\Sigma=G_0^{-1}-G^{-1}`$ on the impurity sites $`S`$, with the pseudomode noninteracting Green function
+
+$$
+G_0(z)=\big[(z-E+\mathrm{i}\Lambda)^{-1}\big]_{SS},\qquad \Lambda=\Gamma_{\mathrm{loss}}+\Gamma_{\mathrm{gain}}.
+$$
 
 ## Install
 
@@ -18,7 +22,10 @@ python -m pip install "c3l[dlr]"
 
 ## Quick start
 
-This CPU example computes $G(i\omega_n)$ and $\Sigma(i\omega_n)$ on a DLR grid for the model of the [quick start](../../../README.md#quick-start). That bath is not fitted to an equilibrium bath, so the example only shows the calls.
+This CPU example computes $`G(\mathrm{i}\omega_n)`$ and $`\Sigma(\mathrm{i}\omega_n)`$ on a DLR grid for the model of the [quick start](../../../README.md#quick-start). That bath is not fitted to an equilibrium bath, so the example only shows the calls.
+
+<details>
+<summary>Show the Matsubara example</summary>
 
 ```python
 import numpy as np
@@ -37,18 +44,20 @@ print(f"Arnoldi residual: {solution.response.max_relative_residual:.2e}")
 np.savez("matsubara.npz", iw=grid.iw, G=solution.green, Sigma=solution.self_energy)
 ```
 
-`matsubara.npz` contains $G$ and $\Sigma$ with axes (frequency, sink, source) over the impurity sites.
+`matsubara.npz` contains $`G`$ and $`\Sigma`$ with axes (frequency, sink, source) over the impurity sites.
+
+</details>
 
 ## Grids
 
 | Grid | Matsubara points |
 | --- | --- |
-| `matsubara_grid(beta, n_iw=N)` | $n=-N,\dots,N-1$, as in TRIQS `MeshImFreq` |
-| `matsubara_grid(beta, indices=n)` | the integers $n$, in the given order |
-| `matsubara_grid(beta, omega_n=w)` | frequencies $\omega_n$ or points $i\omega_n$ on the fermionic lattice of `beta` |
-| `dlr_matsubara_grid(beta, eps, wmax=w)` | DLR nodes for accuracy `eps` and cutoff $\Lambda=\beta\omega_{\max}$; or give `lamb` |
+| `matsubara_grid(beta, n_iw=N)` | $`n=-N,\dots,N-1`$, as in TRIQS `MeshImFreq` |
+| `matsubara_grid(beta, indices=n)` | the integers $`n`$, in the given order |
+| `matsubara_grid(beta, omega_n=w)` | frequencies $`\omega_n`$ or points $`\mathrm{i}\omega_n`$ on the fermionic lattice of `beta` |
+| `dlr_matsubara_grid(beta, eps, wmax=w)` | DLR nodes for accuracy `eps` and cutoff $`\Lambda=\beta\omega_{\max}`$; or give `lamb` |
 
-Here $\omega_n=(2n+1)\pi/\beta$. For the DLR, $\omega_{\max}$ must bound the impurity spectrum: use the half bandwidth plus $U$ for Hubbard-type impurities. The number of DLR nodes grows only as $\log\Lambda\,\log(1/\epsilon)$, so choose $\omega_{\max}$ generously. Only distinct $|\omega_n|$ are computed (`grid.upper_shifts`); `grid.from_upper` fills negative frequencies with the adjoint.
+Here $`\omega_n=(2n+1)\pi/\beta`$. For the DLR, $`\omega_{\max}`$ must bound the impurity spectrum: use the half bandwidth plus $`U`$ for Hubbard-type impurities. The number of DLR nodes grows only as $`\log\Lambda\,\log(1/\epsilon)`$, so choose $`\omega_{\max}`$ generously. Only distinct $`\lvert\omega_n\rvert`$ are computed (`grid.upper_shifts`); `grid.from_upper` fills negative frequencies with the adjoint.
 
 ## Solver options
 
@@ -65,9 +74,9 @@ Here $\omega_n=(2n+1)\pi/\beta$. For the DLR, $\omega_{\max}$ must bound the imp
 
 ## Output
 
-`solution.green` and `solution.self_energy` have axes (frequency, sink, source) over `solution.sites`; $\Sigma$ includes the static Hartree–Fock part. `solution.noninteracting` and `solution.hybridization` are $G_0$ and $\Delta_{\rm PM}=i\omega_n-h-G_0^{-1}$, with $h=E_{SS}$ in `solution.one_body` (including the chemical potential). `solution.amplitudes` and `solution.static_residual` hold the CCSD solution.
+`solution.green` and `solution.self_energy` have axes (frequency, sink, source) over `solution.sites`; $`\Sigma`$ includes the static Hartree–Fock part. `solution.noninteracting` and `solution.hybridization` are $`G_0`$ and $`\Delta_{\mathrm{PM}}=\mathrm{i}\omega_n-h-G_0^{-1}`$, with $`h=E_{SS}`$ in `solution.one_body` (including the chemical potential). `solution.amplitudes` and `solution.static_residual` hold the CCSD solution.
 
-To insert $\Sigma$ into another hybridization on the same grid, e.g. the continuous bath the pseudomodes were fitted to, use
+To insert $`\Sigma`$ into another hybridization on the same grid, e.g. the continuous bath the pseudomodes were fitted to, use
 
 ```python
 G = solution.dyson(Delta_iw)  # [i w_n - h - Delta(i w_n) - Sigma(i w_n)]^{-1}; Delta_iw has shape (len(grid), m, m)
@@ -75,33 +84,15 @@ G = solution.dyson(Delta_iw)  # [i w_n - h - Delta(i w_n) - Sigma(i w_n)]^{-1}; 
 
 ## Imaginary time
 
-On a DLR grid, `grid.dlr_tau(G_iw, tau)` returns $G(\tau)$ for $\tau\in[0,\beta]$, and `grid.dlr_matsubara(G_iw, iw)` returns $G$ at other Matsubara points. `grid.dlr_coefficients` and `grid.dlr_poles` give the expansion $G(i\omega_n)=\sum_l g_l/(i\omega_n-\omega_l)$. Use these methods rather than pydlr's transforms for matrix data. The Lorentzian tails of the pseudomode $G$ limit DLR interpolation of `solution.green` to about $10^{-8}$; check against an explicit grid when this matters.
+On a DLR grid, `grid.dlr_tau(G_iw, tau)` returns $`G(\tau)`$ for $`\tau\in[0,\beta]`$, and `grid.dlr_matsubara(G_iw, iw)` returns $`G`$ at other Matsubara points. `grid.dlr_coefficients` and `grid.dlr_poles` give the expansion $`G(\mathrm{i}\omega_n)=\sum_l g_l/(\mathrm{i}\omega_n-\omega_l)`$. Use these methods rather than pydlr's transforms for matrix data. The Lorentzian tails of the pseudomode $`G`$ limit DLR interpolation of `solution.green` to about $`10^{-8}`$; check against an explicit grid when this matters.
 
 ## Other response solvers
 
-$G^R$ at `grid.upper_shifts` from any solver, e.g. GPU-resident Arnoldi, can be mapped with `grid.from_upper` and passed to `matsubara_self_energy(model, grid, G, sites=...)`. `component_matsubara_green(operator, sources, grid)` evaluates any exact response operator. `c3l.cc.component_response.component_retarded_matrix_green_shifts` accepts any shifts with $\operatorname{Im} z>0$, so real-frequency and Matsubara points can share one Krylov space.
-
-## Limitations
-
-+ Equilibrium baths only; a biased bath has no Matsubara Green function.
-+ Bath fitting from $\Delta(i\omega_n)$ is not provided. RealTimeBath fits the lesser and greater real-time correlation functions, which require the bath spectral function.
-+ Spin mode returns one spin block per call.
-+ The Krylov basis is kept in host memory. For large S135 spaces, use a GPU-resident response as above.
-+ The default full-HF reference can fail to converge at strong coupling, e.g. for the particle-hole-symmetric SIAM at $U=6\Gamma$. For half-filled single-orbital models, use the reference of the SIAM examples:
-
-```python
-from c3l.cc.component_tensor import ComponentStaticProblem
-from c3l.cc.factorized import factorized_cc_problem
-
-static = ComponentStaticProblem.compile(
-    factorized_cc_problem(model, "CCSD", m_up=0.5, reference_mode="legacy_half_filled")
-)
-solution = solve_matsubara(static, grid, rank="S135")
-```
+$`G^R`$ at `grid.upper_shifts` from any solver, e.g. GPU-resident Arnoldi, can be mapped with `grid.from_upper` and passed to `matsubara_self_energy(model, grid, G, sites=...)`. `component_matsubara_green(operator, sources, grid)` evaluates any exact response operator. `c3l.cc.component_response.component_retarded_matrix_green_shifts` accepts any shifts with $`\operatorname{Im} z>0`$, so real-frequency and Matsubara points can share one Krylov space.
 
 ## Example and tests
 
-[05_matsubara_dlr.py](../../../examples/basic/05_matsubara_dlr.py) fits a semicircle bath with RealTimeBath, solves on the DLR grid, inserts $\Sigma$ into the exact semicircle hybridization and transforms to $G(\tau)$. It takes about 15 s on one CPU core; `--modes` sets the pseudomodes per branch.
+[05_matsubara_dlr.py](../../../examples/basic/05_matsubara_dlr.py) fits a semicircle bath with RealTimeBath, solves on the DLR grid, inserts $`\Sigma`$ into the exact semicircle hybridization and transforms to $`G(\tau)`$. It takes about 15 s on one CPU core; `--modes` sets the pseudomodes per branch.
 
 ```bash
 python /path/to/C3L/examples/basic/05_matsubara_dlr.py --output /path/to/work/matsubara_dlr.npz
