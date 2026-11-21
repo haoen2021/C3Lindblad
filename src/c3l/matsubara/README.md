@@ -6,10 +6,10 @@ $$
 G(\mathrm{i}\omega_n)=G^R(\mathrm{i}\omega_n)\quad(\omega_n>0),\qquad G(\mathrm{i}\omega_n)=G^R(-\mathrm{i}\omega_n)^\dagger\quad(\omega_n<0),
 $$
 
-so each Matsubara point is one more shift $`z=\mathrm{i}\lvert\omega_n\rvert`$ of the Krylov space used for real-frequency spectra. The self-energy is $`\Sigma=G_0^{-1}-G^{-1}`$ on the impurity sites $`S`$, with the pseudomode noninteracting Green function
+so each Matsubara point is one more shift $`z=\mathrm{i}|\omega_n|`$ of the Krylov space used for real-frequency spectra. The self-energy is $`\Sigma=G_0^{-1}-G^{-1}`$ on the impurity sites $`S`$, with the pseudomode noninteracting Green function
 
 $$
-G_0(z)=\big[(z-E+\mathrm{i}\Lambda)^{-1}\big]_{SS},\qquad \Lambda=\Gamma_{\mathrm{loss}}+\Gamma_{\mathrm{gain}}.
+G_0(z)=\left[(z-E+\mathrm{i}\Lambda)^{-1}\right]_{SS},\qquad \Lambda=\Gamma_{\mathrm{loss}}+\Gamma_{\mathrm{gain}}.
 $$
 
 ## Install
@@ -57,13 +57,13 @@ np.savez("matsubara.npz", iw=grid.iw, G=solution.green, Sigma=solution.self_ener
 | `matsubara_grid(beta, omega_n=w)` | frequencies $`\omega_n`$ or points $`\mathrm{i}\omega_n`$ on the fermionic lattice of `beta` |
 | `dlr_matsubara_grid(beta, eps, wmax=w)` | DLR nodes for accuracy `eps` and cutoff $`\Lambda=\beta\omega_{\max}`$; or give `lamb` |
 
-Here $`\omega_n=(2n+1)\pi/\beta`$. For the DLR, $`\omega_{\max}`$ must bound the impurity spectrum: use the half bandwidth plus $`U`$ for Hubbard-type impurities. The number of DLR nodes grows only as $`\log\Lambda\,\log(1/\epsilon)`$, so choose $`\omega_{\max}`$ generously. Only distinct $`\lvert\omega_n\rvert`$ are computed (`grid.upper_shifts`); `grid.from_upper` fills negative frequencies with the adjoint.
+Here $`\omega_n=(2n+1)\pi/\beta`$. For the DLR, $`\omega_{\max}`$ must bound the impurity spectrum: use the half bandwidth plus $`U`$ for Hubbard-type impurities. The number of DLR nodes grows only as $`\log\Lambda\,\log(1/\epsilon)`$, so choose $`\omega_{\max}`$ generously. Only distinct $`|\omega_n|`$ are computed (`grid.upper_shifts`); `grid.from_upper` fills negative frequencies with the adjoint.
 
 ## Solver options
 
 `solve_matsubara(model, grid, ...)` solves CCSD, builds the EOM response and evaluates it on the grid.
 
-+ `rank`: `"S13"` (default) or `"S135"`.
++ `rank`: `"S13"` (default) for the $`\mathcal S_{1,3}`$ response space, or `"S135"` for $`\mathcal S_{1,3,5}`$.
 + `platform`: `None` (default) for the NumPy kernels, or `"cpu"`/`"gpu"` for the JAX solvers with `JAX_ENABLE_X64=true`. `production=True` requires the requested device.
 + `sites`: impurity sites, spatial sites in spin mode and spin-orbitals in charge mode. The default is `model.interaction_sites`; every interacting site must be included.
 + `response_spin`: spin block in spin mode (default 0). For the other spin, pass `amplitudes=solution.amplitudes` to skip the static solve.
@@ -88,7 +88,7 @@ On a DLR grid, `grid.dlr_tau(G_iw, tau)` returns $`G(\tau)`$ for $`\tau\in[0,\be
 
 ## Other response solvers
 
-$`G^R`$ at `grid.upper_shifts` from any solver, e.g. GPU-resident Arnoldi, can be mapped with `grid.from_upper` and passed to `matsubara_self_energy(model, grid, G, sites=...)`. `component_matsubara_green(operator, sources, grid)` evaluates any exact response operator. `c3l.cc.component_response.component_retarded_matrix_green_shifts` accepts any shifts with $`\operatorname{Im} z>0`$, so real-frequency and Matsubara points can share one Krylov space.
+$`G^R`$ at `grid.upper_shifts` from any solver, e.g. GPU-resident Arnoldi, can be mapped with `grid.from_upper` and passed to `matsubara_self_energy(model, grid, G, sites=...)`. `component_matsubara_green(operator, sources, grid)` evaluates any exact response operator. `c3l.cc.component_response.component_retarded_matrix_green_shifts` accepts any shifts with $`\mathrm{Im}\,z>0`$, so real-frequency and Matsubara points can share one Krylov space.
 
 ## Example and tests
 
@@ -98,4 +98,4 @@ $`G^R`$ at `grid.upper_shifts` from any solver, e.g. GPU-resident Arnoldi, can b
 python /path/to/C3L/examples/basic/05_matsubara_dlr.py --output /path/to/work/matsubara_dlr.npz
 ```
 
-[test_matsubara.py](../../../tests/test_matsubara.py) compares with exact Lindblad Green functions for S13 and S135; run it with `python -m pytest tests/test_matsubara.py`.
+[test_matsubara.py](../../../tests/test_matsubara.py) compares with exact Lindblad Green functions for $`\mathcal S_{1,3}`$ and $`\mathcal S_{1,3,5}`$; run it with `python -m pytest tests/test_matsubara.py`.
